@@ -1,3 +1,5 @@
+#DFPlayer mp3 player Driver using UART for Raspberry Pi Pico.
+
 from machine import UART, Pin
 from utime import sleep_ms, sleep
 
@@ -28,8 +30,10 @@ class DFPlayer():
         checksum = -(self.VERSION_BYTE + self.COMMAND_LENGTH + command + self.ACKNOWLEDGE + parameter1 + parameter2)
         highByte, lowByte = self.split(checksum)
         toSend = bytes([b & 0xFF for b in [self.START_BYTE, self.VERSION_BYTE, self.COMMAND_LENGTH, command, self.ACKNOWLEDGE,parameter1, parameter2, highByte, lowByte, self.END_BYTE]])
-        #print(toSend)
+
         self.uart.write(toSend)
+        sleep_ms(self.COMMAND_LATENCY)
+        return self.uart.read()
 
     def queryBusy(self):
         return not self.playerBusy.value()
@@ -89,11 +93,9 @@ class DFPlayer():
         self.sendcmd(0x0C, 0x00, 0x00)
 
     def resume(self):
-        print('play')
         self.sendcmd(0x0D, 0x00, 0x00)
 
     def pause(self):
-        print('pause')
         self.sendcmd(0x0E, 0x00, 0x00)
 
     def playTrack(self, folder, file):
