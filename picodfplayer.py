@@ -100,6 +100,11 @@ class DFPlayer():
 
     def playTrack(self, folder, file):
         self.sendcmd(0x0F, folder, file)
+                 
+    def playMP3(self, filenum):
+        a = (filenum >> 8) & 0xff
+        b = filenum & 0xff
+        return self.sendcmd(0x12, a, b)#a, b)
 
     #Query System Parameters
     def init(self, params):
